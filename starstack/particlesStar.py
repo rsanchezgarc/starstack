@@ -149,7 +149,7 @@ class ParticlesStarSet():
         if stackFname:
             # Determine the shape of the particles
 
-            MrcFileStack.dump_npImages_from_iterator(stackFname, iter(self),
+            MrcFileStack.dump_npImages_from_iterator(stackFname, (p for p, md in self),
                                                 nParticles=len(self.partNum_fname),
                                                 particle_shape=self.particle_shape,
                                                 sampling_rate=self.optics_md["rlnImagePixelSize"].iloc[0],
