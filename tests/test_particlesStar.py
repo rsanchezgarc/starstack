@@ -7,7 +7,7 @@ import mrcfile
 import requests
 
 from starstack.mrcFileStack import MrcFileStack
-from starstack.particlesStar import ParticlesSet
+from starstack.particlesStar import ParticlesStarSet
 
 
 def _donwload_url(url, filename):
@@ -44,7 +44,7 @@ class TestParticlesSet(TestCase):
     def test_read(self):
         rootdir, jobDir = download_dataset()
         os.listdir(jobDir)
-        pset = ParticlesSet(starFname=osp.join(jobDir, "particles.star"), particlesDir=rootdir)
+        pset = ParticlesStarSet(starFname=osp.join(jobDir, "particles.star"), particlesDir=rootdir)
         print(len(pset))
         self.assertEqual(len(pset), 1158)
         firstImg, firstMd = pset[0]
@@ -59,7 +59,7 @@ class TestParticlesSet(TestCase):
 
         rootdir, jobDir = download_dataset()
         os.listdir(jobDir)
-        pset = ParticlesSet(starFname=osp.join(jobDir, "particles.star"), particlesDir=rootdir)
+        pset = ParticlesStarSet(starFname=osp.join(jobDir, "particles.star"), particlesDir=rootdir)
         with tempfile.NamedTemporaryFile() as f:
             MrcFileStack.dump_npImages_from_iterator(f.name, (p for p,md in pset), nParticles=len(pset),
                                                      particle_shape=pset.particle_shape,
@@ -73,7 +73,7 @@ class TestParticlesSet(TestCase):
 
         rootdir, jobDir = download_dataset()
         os.listdir(jobDir)
-        pset = ParticlesSet(starFname=osp.join(jobDir, "particles.star"), particlesDir=rootdir)
+        pset = ParticlesStarSet(starFname=osp.join(jobDir, "particles.star"), particlesDir=rootdir)
         subsetPset = pset.createSubset(0,100)
         self.assertTrue((pset[99][1] == subsetPset[99][1]).all())
 

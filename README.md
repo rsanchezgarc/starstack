@@ -2,7 +2,7 @@
 
 
 #O verview
-The ParticlesSet class provides an efficient way to manage a set of particles in cryo-electron microscopy (cryoEM). 
+The ParticlesStarSet class provides an efficient way to manage a set of particles in cryo-electron microscopy (cryoEM). 
 It allows for easy reading and manipulation of STAR files and associated .mrcs image stacks. 
 The library also offers utilities for creating subsets and saving them back to disk.
 
@@ -26,6 +26,6 @@ pip install git+https://github.com/rsanchezgarc/starstack
 Reading STAR Files
 
 ```
-from starstack import ParticlesSet
-pset = ParticlesSet("my_file.star", particlesDir="Particles/")
+from starstack import ParticlesStarSet
+pset = ParticlesStarSet("my_file.star", particlesDir="Particles/")
 ```

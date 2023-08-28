@@ -8,7 +8,7 @@ from typing import Optional, Union, Iterator, List
 from .mrcFileStack import MrcFileStack
 
 
-class ParticlesSet():
+class ParticlesStarSet():
 
     def __init__(self, starFname, particlesDir: Optional[str]=None, starts_at_1:bool=True):
         """
@@ -75,7 +75,7 @@ class ParticlesSet():
         return self.optics_md["rlnImagePixelSize"].unique().item()
     @staticmethod
     def createEmptySet():
-        pset = ParticlesSet.__new__(ParticlesSet)
+        pset = ParticlesStarSet.__new__(ParticlesStarSet)
         pset.emptySet()
         return pset
 
@@ -116,11 +116,11 @@ class ParticlesSet():
                                                 overwrite=overwrite, batch_size=1000)
 
         starfile.write(dict(optics=opticsDf, particles=particlesDf), newStarFname, overwrite=overwrite)
-        return ParticlesSet(newStarFname)
+        return ParticlesStarSet(newStarFname)
 
     def createSubset(self, start:Optional[int]=None, end:Optional[int]=None, idxs:Optional[List[int]]=None):
 
-        pset = ParticlesSet.createEmptySet()
+        pset = ParticlesStarSet.createEmptySet()
         pset.optics_md = self.optics_md.copy()
         if idxs is not None:
             assert start is  None and end is None, "Error, if idxs are provided, start and end should not be provided"
