@@ -161,9 +161,11 @@ class ParticlesStarSet():
             new_particles_md["rlnImageName"] = ["%6d@%s" % (i + 1, stackFname) for i in range(len(new_particles_md))]
 
         # Create the new starfile
-        star_data = {"particles": new_particles_md}
+        star_data = {}
         if self.optics_md is not None:
             star_data["optics"] = self.optics_md
+        star_data["particles"] = new_particles_md
+
 
         starfile.write(star_data, starFname, overwrite=True)
 
