@@ -98,7 +98,7 @@ class ParticlesStarSet():
         assert "rlnImageName" in particlesDf, ("rlnImageName will be automatically assigned when the stack is created, "
                                              "it need to be removed from starDf")
 
-        newStackName = newStarFname.rstrip("star") + ".mrcs"
+        newStackName = osp.splitext(newStarFname)[0] + ".mrcs"
         _newStackName = newStackName if not basenameInStarImageName else osp.basename(newStackName)
         particlesDf["rlnImageName"] = ["%06d@%s" % (i, _newStackName) for i in range(1, 1 + len(particlesDf))]
 

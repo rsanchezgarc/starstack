@@ -86,4 +86,4 @@ class TestParticlesSet(TestCase):
         self.assertTrue((pset[100][1] == subsetPset[0][1]).all())
 
         with tempfile.NamedTemporaryFile() as f:
-            subsetPset.save(f.name, stackFname=f.name.rstrip("star") +".mrcs", overwrite=True)
+            subsetPset.save(f.name, stackFname=f.name.replace(".star", ".mrcs"), overwrite=True)
