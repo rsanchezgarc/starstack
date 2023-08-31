@@ -50,7 +50,8 @@ class ParticlesStarSet():
                 fullFname = osp.join(osp.dirname(starFname), basename)
             return fullFname
 
-        partNum_dirname_basename_list = [(int(d["partNum"]), d["dirname"], d["basename"]) for d in
+        partNum_dirname_basename_list = [(int(d["partNum"]), d["dirname"] if d["dirname"] else "",
+                                          d["basename"]) for d in
                                          self.particles_md["rlnImageName"].map(lambda x: split_particle_and_fname(x))]
         self.partNum_fname = [(int(pn) - bool(starts_at_1), get_fname(d, b)) for pn, d, b in
                               partNum_dirname_basename_list]
