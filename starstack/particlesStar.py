@@ -4,7 +4,7 @@ import numpy as np
 import starfile
 import pandas as pd
 import os.path as osp
-from typing import Optional, Union, Iterator, List
+from typing import Optional, Union, Iterator, List, Dict, Any
 from .mrcFileStack import MrcFileStack
 
 
@@ -49,6 +49,8 @@ class ParticlesStarSet():
                 # try to get it from the same directory as the starFname
                 fullFname = osp.join(osp.dirname(starFname), basename)
             return fullFname
+
+        self.particles_md.set_index("rlnImageName", inplace=True, drop=False)
 
         partNum_dirname_basename_list = [(int(d["partNum"]), d["dirname"] if d["dirname"] else "",
                                           d["basename"]) for d in
@@ -169,6 +171,11 @@ class ParticlesStarSet():
 
 
         starfile.write(star_data, starFname, overwrite=True)
+
+    def updateMd(self, ids:List[str], colname2change:Dict[str, Any]):
+
+        for col, vals in colname2change.items():
+            self.particles_md.loc[ids, col] = vals
 
     def __getitem__(self, idx):
         if isinstance(idx, slice):

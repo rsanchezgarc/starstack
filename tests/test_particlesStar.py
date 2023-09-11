@@ -1,5 +1,6 @@
 import os
 import os.path as osp
+import random
 import tempfile
 from unittest import TestCase
 
@@ -87,3 +88,23 @@ class TestParticlesSet(TestCase):
 
         with tempfile.NamedTemporaryFile() as f:
             subsetPset.save(f.name, stackFname=f.name.replace(".star", ".mrcs"), overwrite=True)
+
+    def test_updateMd(self):
+
+        rootdir, jobDir = download_dataset()
+        os.listdir(jobDir)
+        pset = ParticlesStarSet(starFname=osp.join(jobDir, "particles.star"), particlesDir=rootdir)
+        img, md = pset[5]
+
+        # pset.updateMd(ids=[md['rlnImageName']], colname2change={'rlnAnglePsi':[-1]})
+        # self.assertAlmostEqual(pset[5][-1]['rlnAnglePsi'], -1)
+
+
+        idxs = [random.randint(0, len(pset)-1) for _ in range(10)]
+        mds = [pset[idx][-1] for idx in idxs]
+        target_vals = list(range(len(idxs)))
+        pset.updateMd(ids=[md['rlnImageName'] for md in mds], colname2change={'rlnAnglePsi':target_vals})
+        new_md = [pset[idx][-1] for idx in idxs]
+        self.assertEqual([int(round(n['rlnAnglePsi'])) for n in new_md], target_vals)
+
+
