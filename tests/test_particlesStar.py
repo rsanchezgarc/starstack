@@ -108,3 +108,8 @@ class TestParticlesSet(TestCase):
         self.assertEqual([int(round(n['rlnAnglePsi'])) for n in new_md], target_vals)
 
 
+    def test_shuffle(self):
+        rootdir, jobDir = download_dataset()
+        os.listdir(jobDir)
+        pset = ParticlesStarSet(starFname=osp.join(jobDir, "particles.star"), particlesDir=rootdir)
+        pset.shuffle()

@@ -18,6 +18,9 @@ class ParticlesStarSet():
         imageName paths for .mrcs are referred from the current working directory
         :param starts_at_1: Whether the first particle at the starfile is named 0 or 1. In Relion it starts with 1
         """
+        self.starFname = starFname
+        self.particlesDir = particlesDir
+        self.starts_at_1 = starts_at_1
         self.read(starFname, particlesDir, starts_at_1=starts_at_1)
 
     def read(self, starFname, particlesDir: Optional[str], starts_at_1:bool=True):
@@ -37,28 +40,34 @@ class ParticlesStarSet():
             self.particles_md = data
             self.optics_md = None
 
-        if particlesDir:
-            _get_fname = lambda d, b: osp.join(particlesDir, d, b)
+        self.particles_md.set_index("rlnImageName", inplace=True, drop=False)
+        self.partNum_fname = self._compute_partNumFname()
+
+        self._imgStackFileHandlers = {}
+
+    def _compute_partNumFname(self):
+        if self.particlesDir:
+            _get_fname = lambda d, b: osp.join(self.particlesDir, d, b)
         else:
             _get_fname = lambda d, b: osp.join(d, b) if d else b
-            particlesDir = ""
 
         def get_fname(dirname, basename):
             fullFname = _get_fname(dirname, basename)
             if not osp.isfile(fullFname):
                 # try to get it from the same directory as the starFname
-                fullFname = osp.join(osp.dirname(starFname), basename)
+                fullFname = osp.join(osp.dirname(self.starFname), basename)
             return fullFname
 
-        self.particles_md.set_index("rlnImageName", inplace=True, drop=False)
 
         partNum_dirname_basename_list = [(int(d["partNum"]), d["dirname"] if d["dirname"] else "",
                                           d["basename"]) for d in
                                          self.particles_md["rlnImageName"].map(lambda x: split_particle_and_fname(x))]
-        self.partNum_fname = [(int(pn) - bool(starts_at_1), get_fname(d, b)) for pn, d, b in
+        return [(int(pn) - bool(self.starts_at_1), get_fname(d, b)) for pn, d, b in
                               partNum_dirname_basename_list]
 
-        self._imgStackFileHandlers = {}
+    def shuffle(self):
+        self.particles_md = self.particles_md.sample(frac=1)
+        self.partNum_fname = self._compute_partNumFname()
 
     def emptySet(self):
         self.particles_md = None
