@@ -199,9 +199,6 @@ class ParticlesStarSet():
     def __len__(self):
         return len(self.particles_md)
 
-    def __iter__(self):
-        for x in self:
-            yield x
 
     def getPose(self, idx:int) -> Tuple[List[float], List[float]]:
         img, md = self[idx]
