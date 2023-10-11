@@ -200,6 +200,9 @@ class ParticlesStarSet():
     def __len__(self):
         return len(self.particles_md)
 
+    def __iter__(self):
+        for x in self:
+            yield x
     def __add__(self, other):
         ps = self.createEmptySet()
         ps.particles_md = pd.concat([self.particles_md, other.particles_md])
