@@ -4,7 +4,9 @@ import numpy as np
 import starfile
 import pandas as pd
 import os.path as osp
-from typing import Optional, Union, Iterator, List, Dict, Any
+from typing import Optional, Union, Iterator, List, Dict, Any, Tuple
+
+from .constants import RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES
 from .mrcFileStack import MrcFileStack
 
 
@@ -21,15 +23,12 @@ class ParticlesStarSet():
         self.starFname = starFname
         self.particlesDir = particlesDir
         self.starts_at_1 = starts_at_1
-        self.read(starFname, particlesDir, starts_at_1=starts_at_1)
+        self.read(starFname)
 
-    def read(self, starFname, particlesDir: Optional[str], starts_at_1:bool=True):
+    def read(self, starFname):
         """
 
         :param starFname: The star filename with the metadata
-        :param particlesDir: The directory of the particles .mrcs file(s). If None, it assumes that starFname
-        imageName paths for .mrcs are refered from the current working directory
-        :param starts_at_1: Whether the first particle at the starfile is named 0 or 1. In Relion it starts with 1
         """
 
         data = starfile.read(starFname)
@@ -203,6 +202,14 @@ class ParticlesStarSet():
     def __iter__(self):
         for x in self:
             yield x
+
+    def getPose(self, idx:int) -> Tuple[List[float], List[float]]:
+        img, md = self[idx]
+        anglesDegs =  [md[name] for name in RELION_ANGLES_NAMES]
+        xyShiftAngs = [md[name] for name in RELION_SHIFTS_NAMES]
+        return anglesDegs, xyShiftAngs
+
+
     def __add__(self, other):
         ps = self.createEmptySet()
         ps.particles_md = pd.concat([self.particles_md, other.particles_md])
