@@ -188,10 +188,10 @@ class ParticlesStarSet():
     def __getitem__(self, idx):
         if isinstance(idx, slice):
             imgs, mds =  zip(*[self.__getitem(ii) for ii in range(*idx.indices(len(self)))])
-            return np.stack(imgs, 0), pd.concat(mds)
+            return np.stack(imgs, 0), pd.DataFrame(mds)
         elif isinstance(idx, (list, tuple)):
             imgs, mds =  zip(*[self.__getitem(ii) for ii in idx])
-            return np.stack(imgs, 0), pd.concat(mds)
+            return np.stack(imgs, 0), pd.DataFrame(mds)
         else:
             return self.__getitem(idx)
 
