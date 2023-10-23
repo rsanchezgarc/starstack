@@ -187,8 +187,9 @@ class ParticlesStarSet():
 
     def __getitem__(self, idx):
         if isinstance(idx, slice):
-            img_md_list = [self.__getitem(ii) for ii in range(*idx.indices(len(self)))]
-            return img_md_list
+            return [self.__getitem(ii) for ii in range(*idx.indices(len(self)))]
+        elif isinstance(idx, (list, tuple)):
+            return [self.__getitem(ii) for ii in idx]
         else:
             return self.__getitem(idx)
 
@@ -198,7 +199,6 @@ class ParticlesStarSet():
 
     def __len__(self):
         return len(self.particles_md)
-
 
     def getPose(self, idx:int) -> Tuple[List[float], List[float]]:
         img, md = self[idx]
