@@ -12,7 +12,7 @@ from .mrcFileStack import MrcFileStack
 
 class ParticlesStarSet():
 
-    def __init__(self, starFname, particlesDir: Optional[str]=None, starts_at_1:bool=True):
+    def __init__(self, starFname, particlesDir: Optional[str] = None, starts_at_1: bool = True):
         """
 
         :param starFname: The star filename with the metadata
@@ -57,12 +57,11 @@ class ParticlesStarSet():
                 fullFname = osp.join(osp.dirname(self.starFname), basename)
             return fullFname
 
-
         partNum_dirname_basename_list = [(int(d["partNum"]), d["dirname"] if d["dirname"] else "",
                                           d["basename"]) for d in
                                          self.particles_md["rlnImageName"].map(lambda x: split_particle_and_fname(x))]
         return [(int(pn) - bool(self.starts_at_1), get_fname(d, b)) for pn, d, b in
-                              partNum_dirname_basename_list]
+                partNum_dirname_basename_list]
 
     def shuffle(self):
         self.particles_md = self.particles_md.sample(frac=1)
@@ -84,6 +83,7 @@ class ParticlesStarSet():
     @property
     def sampling_rate(self):
         return self.optics_md["rlnImagePixelSize"].unique().item()
+
     @staticmethod
     def createEmptySet():
         pset = ParticlesStarSet.__new__(ParticlesStarSet)
@@ -91,9 +91,9 @@ class ParticlesStarSet():
         return pset
 
     @staticmethod
-    def createFromPdNp(newStarFname:str, opticsDf:pd.DataFrame, particlesDf:pd.DataFrame,
-                       npImages:Union[np.ndarray, Iterator[np.ndarray]],
-                       overwrite:bool=False, basenameInStarImageName:bool=True):
+    def createFromPdNp(newStarFname: str, opticsDf: pd.DataFrame, particlesDf: pd.DataFrame,
+                       npImages: Union[np.ndarray, Iterator[np.ndarray]],
+                       overwrite: bool = False, basenameInStarImageName: bool = True):
         """
 
         :param newStarFname: The starfile name to save the results. The stack of particles will have the same name  as newStarFname but ending with .mrcs
@@ -105,9 +105,8 @@ class ParticlesStarSet():
         :return:
         """
 
-
         assert "rlnImageName" in particlesDf, ("rlnImageName will be automatically assigned when the stack is created, "
-                                             "it need to be removed from starDf")
+                                               "it need to be removed from starDf")
 
         newStackName = osp.splitext(newStarFname)[0] + ".mrcs"
         _newStackName = newStackName if not basenameInStarImageName else osp.basename(newStackName)
@@ -122,19 +121,19 @@ class ParticlesStarSet():
                                        overwrite=overwrite)
         else:
             MrcFileStack.dump_npImages_from_iterator(newStackName, npImages, nParticles=len(particlesDf),
-                                                particle_shape=(opticsDf["rlnImageSize"].unique().item(),)*2,
-                                                sampling_rate=opticsDf["rlnImagePixelSize"].unique().item(),
-                                                overwrite=overwrite, batch_size=1000)
+                                                     particle_shape=(opticsDf["rlnImageSize"].unique().item(),) * 2,
+                                                     sampling_rate=opticsDf["rlnImagePixelSize"].unique().item(),
+                                                     overwrite=overwrite, batch_size=1000)
 
         starfile.write(dict(optics=opticsDf, particles=particlesDf), newStarFname, overwrite=overwrite)
         return ParticlesStarSet(newStarFname)
 
-    def createSubset(self, start:Optional[int]=None, end:Optional[int]=None, idxs:Optional[List[int]]=None):
+    def createSubset(self, start: Optional[int] = None, end: Optional[int] = None, idxs: Optional[List[int]] = None):
 
         pset = ParticlesStarSet.createEmptySet()
         pset.optics_md = self.optics_md.copy()
         if idxs is not None:
-            assert start is  None and end is None, "Error, if idxs are provided, start and end should not be provided"
+            assert start is None and end is None, "Error, if idxs are provided, start and end should not be provided"
             pset.particles_md = self.particles_md.iloc[idxs]
             pset.partNum_fname = [self.partNum_fname[i] for i in idxs]
         else:
@@ -149,9 +148,8 @@ class ParticlesStarSet():
             self._imgStackFileHandlers[fname] = MrcFileStack(fname)
         return self._imgStackFileHandlers[fname]
 
-
-    def save(self, starFname: str, stackFname: Optional[str] = None, overwrite:bool=False, batch_size:int=1000,
-             basenameOnlyForNewStar:bool=True):
+    def save(self, starFname: str, stackFname: Optional[str] = None, overwrite: bool = False, batch_size: int = 1000,
+             basenameOnlyForNewStar: bool = True):
 
         # Create a copy of the particles metadata
         new_particles_md = self.particles_md.copy()
@@ -161,10 +159,10 @@ class ParticlesStarSet():
             # Determine the shape of the particles
 
             MrcFileStack.dump_npImages_from_iterator(stackFname, (p for p, md in self),
-                                                nParticles=len(self.partNum_fname),
-                                                particle_shape=self.particle_shape,
-                                                sampling_rate=self.optics_md["rlnImagePixelSize"].iloc[0],
-                                                overwrite=overwrite, batch_size=batch_size)
+                                                     nParticles=len(self.partNum_fname),
+                                                     particle_shape=self.particle_shape,
+                                                     sampling_rate=self.optics_md["rlnImagePixelSize"].iloc[0],
+                                                     overwrite=overwrite, batch_size=batch_size)
 
             # Update the image names in the new particles metadata to refer to the new stack file
             if basenameOnlyForNewStar:
@@ -177,20 +175,19 @@ class ParticlesStarSet():
             star_data["optics"] = self.optics_md
         star_data["particles"] = new_particles_md
 
-
         starfile.write(star_data, starFname, overwrite=True)
 
-    def updateMd(self, ids:List[str], colname2change:Dict[str, Any]):
+    def updateMd(self, ids: List[str], colname2change: Dict[str, Any]):
 
         for col, vals in colname2change.items():
             self.particles_md.loc[ids, col] = vals
 
     def __getitem__(self, idx):
         if isinstance(idx, slice):
-            imgs, mds =  zip(*[self.__getitem(ii) for ii in range(*idx.indices(len(self)))])
+            imgs, mds = zip(*[self.__getitem(ii) for ii in range(*idx.indices(len(self)))])
             return np.stack(imgs, 0), pd.DataFrame(mds)
         elif isinstance(idx, (list, tuple)):
-            imgs, mds =  zip(*[self.__getitem(ii) for ii in idx])
+            imgs, mds = zip(*[self.__getitem(ii) for ii in idx])
             return np.stack(imgs, 0), pd.DataFrame(mds)
         else:
             return self.__getitem(idx)
@@ -202,12 +199,34 @@ class ParticlesStarSet():
     def __len__(self):
         return len(self.particles_md)
 
-    def getPose(self, idx:int) -> Tuple[List[float], List[float]]:
+    def getPose(self, idx: int) -> Tuple[List[float], List[float]]:
         img, md = self[idx]
-        anglesDegs =  [md[name] for name in RELION_ANGLES_NAMES]
+        return self.getPoseFromMd(md)
+
+    @classmethod
+    def getPoseFromMd(cls, md):
+        anglesDegs = [md[name] for name in RELION_ANGLES_NAMES]
         xyShiftAngs = [md[name] for name in RELION_SHIFTS_NAMES]
+        anglesDegs = np.array(anglesDegs).T
+        xyShiftAngs = np.array(xyShiftAngs).T
         return anglesDegs, xyShiftAngs
 
+    def getCtfParamsFromMd(self, md):  # TODO: Move the names to constants
+        if isinstance(md, pd.Series):
+            md = pd.DataFrame([md])
+        elif not isinstance(md, pd.DataFrame):
+            raise RuntimeError("Error, md is not a pd.DataFrame")
+        voltage = self.optics_md.rlnVoltage
+        amplitude_contrast = self.optics_md.rlnAmplitudeContrast
+        spherical_aberration = self.optics_md.rlnSphericalAberration
+        sampling_rate = self.optics_md.rlnImagePixelSize
+        defocus_u = md.rlnDefocusU
+        defocus_v = md.rlnDefocusV
+        defocus_angle = md.rlnDefocusAngle
+        params = dict(defocus_u=defocus_u, defocus_v=defocus_v, defocus_angle=defocus_angle, voltage=voltage,
+                      sampling_rate=sampling_rate, amplitude_contrast=amplitude_contrast,
+                      spherical_aberration=spherical_aberration)
+        return {k: v.values for k, v in params.items()}
 
     def __add__(self, other):
         ps = self.createEmptySet()
@@ -233,7 +252,6 @@ class ParticlesStarSet():
         return ps
 
 
-
-def split_particle_and_fname(fname, pattern = re.compile("(\d+@)?(.*/)*(.*)")):
+def split_particle_and_fname(fname, pattern=re.compile("(\d+@)?(.*/)*(.*)")):
     matchObj = re.match(pattern, fname)
     return dict(partNum=matchObj.group(1)[:-1], dirname=matchObj.group(2), basename=matchObj.group(3))
