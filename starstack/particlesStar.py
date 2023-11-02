@@ -6,7 +6,7 @@ import pandas as pd
 import os.path as osp
 from typing import Optional, Union, Iterator, List, Dict, Any, Tuple
 
-from .constants import RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES
+from .constants import RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES, RELION_PRED_POSE_CONFIDENCE_NAME
 from .mrcFileStack import MrcFileStack
 
 
@@ -141,7 +141,13 @@ class ParticlesStarSet():
             pset.particles_md = self.particles_md.iloc[start:end, :]
             pset.partNum_fname = self.partNum_fname[start:end]
         pset._imgStackFileHandlers = {}
+        pset.starFname = None
+        pset.particlesDir = self.particlesDir
+        pset.starts_at_1 = self.starts_at_1
         return pset
+
+    def copy(self):
+        return self.createSubset(start=0, end=len(self))
 
     def getImgStackFilehandler(self, fname):
         if fname not in self._imgStackFileHandlers:
@@ -199,9 +205,22 @@ class ParticlesStarSet():
     def __len__(self):
         return len(self.particles_md)
 
-    def getPose(self, idx: int) -> Tuple[List[float], List[float]]:
-        img, md = self[idx]
+    def getPose(self, idx: int | List[int]) -> Tuple[np.ndarray, np.ndarray]:
+        md = self.particles_md.iloc[idx, :]
         return self.getPoseFromMd(md)
+
+    def setPose(self, idx: int | List[int], eulerDegs: np.ndarray | None = None, shiftsAngst: np.ndarray | None = None,
+                confidence: np.ndarray | None = None):
+
+        if eulerDegs is not None:
+            self.particles_md.iloc[idx, [self.particles_md.columns.get_loc(col) for col in RELION_ANGLES_NAMES]] = eulerDegs
+
+        if shiftsAngst is not None:
+            self.particles_md.iloc[idx, [self.particles_md.columns.get_loc(col) for col in RELION_SHIFTS_NAMES]] = shiftsAngst
+
+        if confidence is not None:
+            self.particles_md.iloc[idx, self.particles_md.columns.get_loc(RELION_PRED_POSE_CONFIDENCE_NAME)] = confidence
+
 
     @classmethod
     def getPoseFromMd(cls, md):
