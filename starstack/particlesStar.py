@@ -134,11 +134,11 @@ class ParticlesStarSet():
         pset.optics_md = self.optics_md.copy()
         if idxs is not None:
             assert start is None and end is None, "Error, if idxs are provided, start and end should not be provided"
-            pset.particles_md = self.particles_md.iloc[idxs]
+            pset.particles_md = self.particles_md.iloc[idxs].copy()
             pset.partNum_fname = [self.partNum_fname[i] for i in idxs]
         else:
             assert start is not None and end is not None, "Error, if idxs are not provided, start and end should be provided"
-            pset.particles_md = self.particles_md.iloc[start:end, :]
+            pset.particles_md = self.particles_md.iloc[start:end, :].copy()
             pset.partNum_fname = self.partNum_fname[start:end]
         pset._imgStackFileHandlers = {}
         pset.starFname = None
