@@ -173,7 +173,7 @@ class ParticlesStarSet():
             # Update the image names in the new particles metadata to refer to the new stack file
             if basenameOnlyForNewStar:
                 stackFname = osp.basename(stackFname)
-            new_particles_md["rlnImageName"] = ["%6d@%s" % (i + 1, stackFname) for i in range(len(new_particles_md))]
+            new_particles_md["rlnImageName"] = ["%06d@%s" % (i + 1, stackFname) for i in range(len(new_particles_md))]
 
         # Create the new starfile
         star_data = {}
