@@ -205,11 +205,11 @@ class ParticlesStarSet():
     def __len__(self):
         return len(self.particles_md)
 
-    def getPose(self, idx: int | List[int]) -> Tuple[np.ndarray, np.ndarray]:
+    def getPose(self, idx: Union[int,List[int]]) -> Tuple[np.ndarray, np.ndarray]:
         md = self.particles_md.iloc[idx, :]
         return self.getPoseFromMd(md)
 
-    def setPose(self, idx: int | List[int], eulerDegs: np.ndarray | None = None, shiftsAngst: np.ndarray | None = None,
+    def setPose(self, idx: Union[int,List[int]], eulerDegs: np.ndarray | None = None, shiftsAngst: np.ndarray | None = None,
                 confidence: np.ndarray | None = None):
 
         if eulerDegs is not None:
