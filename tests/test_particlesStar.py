@@ -4,6 +4,7 @@ import random
 import tempfile
 from unittest import TestCase
 
+import matplotlib.pyplot as plt
 import mrcfile
 import requests
 
@@ -58,6 +59,8 @@ class TestParticlesSet(TestCase):
         self.assertAlmostEqual(lastMd["rlnCoordinateX"], 1230.417654)
         self.assertAlmostEqual(pset[48][0].mean(), 0.080, places=3)
         self.assertAlmostEqual(pset[73][0].mean(), 0.092, places=3)
+        # plt.imshow(firstImg); plt.show()
+        # plt.imshow(lastImg); plt.show()
 
     def test_dump(self):
         rootdir, jobDir = download_dataset()

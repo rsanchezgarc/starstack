@@ -1,7 +1,7 @@
 ## starstack: CryoEM Particle stars and stack Management in Python
 
 
-#O verview
+# Overview
 The ParticlesStarSet class provides an efficient way to manage a set of particles in cryo-electron microscopy (cryoEM). 
 It allows for easy reading and manipulation of STAR files and associated .mrcs image stacks. 
 The library also offers utilities for creating subsets and saving them back to disk.
