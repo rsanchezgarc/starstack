@@ -1,3 +1,5 @@
+import multiprocessing
+import threading
 import warnings
 
 import mrcfile
@@ -71,6 +73,9 @@ class MrcFileStack(MrcFile):
         self.image_stride = self.image_nelem * self.elem_size
         self._data = None
 
+        self._lock = threading.Lock()
+        self._mpLock = multiprocessing.Lock()
+
     def _identity(self, x):
         return x
 
@@ -86,11 +91,13 @@ class MrcFileStack(MrcFile):
 
     def get_idx(self, idx):
         offset = self._get_offset(idx)
-        self.f.seek(self._get_offset(idx))
-        try:
-            image = np.fromfile(self.f, dtype=self.dtype, count=self.image_nelem).reshape(self.shape)
-        except ValueError as e:
-            raise ValueError(str(e)+f" file {self.fname} idx {idx} offset {offset}")
+        with self._lock:
+            with self._mpLock:
+                self.f.seek(offset)
+                try:
+                    image = np.fromfile(self.f, dtype=self.dtype, count=self.image_nelem).reshape(self.shape)
+                except ValueError as e:
+                    raise ValueError(str(e)+f" file {self.fname} idx {idx} offset {offset}")
         if self.map_function is not None:
             image = self.map_function(image)
         return image
