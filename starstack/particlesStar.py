@@ -105,8 +105,8 @@ class ParticlesStarSet():
         :return:
         """
 
-        assert "rlnImageName" in particlesDf, ("rlnImageName will be automatically assigned when the stack is created, "
-                                               "it need to be removed from starDf")
+        # assert "rlnImageName" in particlesDf, ("rlnImageName will be automatically assigned when the stack is created, "
+        #                                        "it needs to be removed from particlesDf")
 
         newStackName = osp.splitext(newStarFname)[0] + ".mrcs"
         _newStackName = newStackName if not basenameInStarImageName else osp.basename(newStackName)
@@ -260,7 +260,7 @@ class ParticlesStarSet():
 
             # Update the optics group IDs in the other optics DataFrame
             other_optics_md = other.optics_md.copy()
-            other_optics_md['rlnOpticsGroup'] += next_optics_group_id
+            other_optics_md['rlnOpticsGroup'] = next_optics_group_id
 
             suffix = f"_{next_optics_group_id}"
             other_optics_md['rlnOpticsGroupName'] = other_optics_md['rlnOpticsGroupName'].apply(lambda x: x + suffix)
