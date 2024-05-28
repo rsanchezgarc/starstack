@@ -183,10 +183,13 @@ class ParticlesStarSet():
 
         starfile.write(star_data, starFname, overwrite=True)
 
-    def updateMd(self, ids: List[str], colname2change: Dict[str, Any]):
+    def updateMd(self, ids: Optional[List[str]], colname2change: Dict[str, Any]):
 
         for col, vals in colname2change.items():
-            self.particles_md.loc[ids, col] = vals
+            if ids is not None:
+                self.particles_md.loc[ids, col] = vals
+            else:
+                self.particles_md[col] = vals
 
     def __getitem__(self, idx):
         if isinstance(idx, slice):
@@ -209,17 +212,23 @@ class ParticlesStarSet():
         md = self.particles_md.iloc[idx, :]
         return self.getPoseFromMd(md)
 
-    def setPose(self, idx: Union[int,List[int]], eulerDegs: np.ndarray | None = None, shiftsAngst: np.ndarray | None = None,
-                confidence: np.ndarray | None = None):
+    def setPose(self, idx: Union[int,List[int]], eulerDegs: Optional[np.ndarray] = None, shiftsAngst: Optional[np.ndarray] = None,
+                confidence: Optional[np.ndarray] = None):
 
         if eulerDegs is not None:
-            self.particles_md.iloc[idx, [self.particles_md.columns.get_loc(col) for col in RELION_ANGLES_NAMES]] = eulerDegs
+            self.particles_md.iloc[idx,
+                                [self.particles_md.columns.get_loc(col) for col in RELION_ANGLES_NAMES]] = eulerDegs
 
         if shiftsAngst is not None:
-            self.particles_md.iloc[idx, [self.particles_md.columns.get_loc(col) for col in RELION_SHIFTS_NAMES]] = shiftsAngst
+            self.particles_md.iloc[idx,
+                                [self.particles_md.columns.get_loc(col) for col in RELION_SHIFTS_NAMES]] = shiftsAngst
 
         if confidence is not None:
-            self.particles_md.iloc[idx, self.particles_md.columns.get_loc(RELION_PRED_POSE_CONFIDENCE_NAME)] = confidence
+            if RELION_PRED_POSE_CONFIDENCE_NAME not in self.particles_md.columns:
+                self.particles_md[RELION_PRED_POSE_CONFIDENCE_NAME] = confidence
+            else:
+                self.particles_md.iloc[idx,
+                                    self.particles_md.columns.get_loc(RELION_PRED_POSE_CONFIDENCE_NAME)] = confidence
 
 
     @classmethod
