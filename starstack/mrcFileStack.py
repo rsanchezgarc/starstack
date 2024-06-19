@@ -6,6 +6,11 @@ import mrcfile
 import numpy as np
 from mrcfile.mrcfile import MrcFile
 
+try:
+    np_prod = np.prod
+except AttributeError:
+    np_prod = np.product
+
 class MrcFileStack(MrcFile):
     DTYPE_FROM_MODE = {0: np.int8,
                        1: np.int16,
@@ -68,7 +73,7 @@ class MrcFileStack(MrcFile):
         self.n = int(self.header["nz"])
         self.map_function = map_function if map_function is not None else self._identity
         self.dtype = MrcFileStack.DTYPE_FROM_MODE[int(self.header['mode'])]
-        self.image_nelem = np.prod(self.shape).astype(np.int64) #np.long
+        self.image_nelem = np_prod(self.shape).astype(np.int64) #np.long
         self.elem_size = np.ones(1, dtype=np.float32).itemsize
         self.image_stride = self.image_nelem * self.elem_size
         self._data = None
