@@ -183,11 +183,18 @@ class ParticlesStarSet():
 
         starfile.write(star_data, starFname, overwrite=True)
 
-    def updateMd(self, ids: Optional[List[str]], colname2change: Dict[str, Any]):
+    def updateMd(self, ids: Optional[List[str]], idxs: Optional[List[int]], colname2change: Dict[str, Any]):
 
         for col, vals in colname2change.items():
             if ids is not None:
                 self.particles_md.loc[ids, col] = vals
+            elif idxs is not None:
+                try:
+                    col_idx =  self.particles_md.columns.get_loc(col)
+                    self.particles_md.iloc[idxs, col_idx] = vals
+                except KeyError:
+                    self.particles_md[col] = np.nan * np.ones(self.particles_md.shape[0], dtype=vals.dtype)
+                    self.particles_md.iloc[idxs, self.particles_md.shape[-1]-1] = vals
             else:
                 self.particles_md[col] = vals
 
