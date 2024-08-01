@@ -183,8 +183,9 @@ class ParticlesStarSet():
 
         starfile.write(star_data, starFname, overwrite=True)
 
-    def updateMd(self, ids: Optional[List[str]], idxs: Optional[List[int]], colname2change: Dict[str, Any]):
-
+    def updateMd(self, ids: Optional[List[str]]=None, idxs: Optional[List[int]]=None,
+                 colname2change: Dict[str, Any]=None):
+        assert colname2change is not None
         for col, vals in colname2change.items():
             if ids is not None:
                 self.particles_md.loc[ids, col] = vals
