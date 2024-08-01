@@ -34,5 +34,6 @@ setup(
     keywords='relion cryoem star stack mrcs',  # Optional
     packages=find_packages(),
     install_requires=[requirements],
-    include_package_data=True  # This line is important to read MANIFEST.in
+    include_package_data=True,  # This line is important to read MANIFEST.in
+    long_description_content_type = "text/markdown",
 )
