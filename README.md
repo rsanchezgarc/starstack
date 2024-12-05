@@ -28,4 +28,6 @@ Reading STAR Files
 ```
 from starstack import ParticlesStarSet
 pset = ParticlesStarSet("my_file.star", particlesDir="Particles/")
+for img,metadata in pset:
+  print(img.shape)
 ```
