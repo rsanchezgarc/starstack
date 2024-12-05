@@ -1,6 +1,7 @@
 import multiprocessing
 import threading
 import warnings
+from typing import List
 
 import mrcfile
 import numpy as np
@@ -111,7 +112,6 @@ class MrcFileStack(MrcFile):
         assert idx >= 0, "Error, negative indexes are currently not suported"
         return self.get_idx(idx)
 
-
     def get_header_prop(self, name):
         assert name in self.header.dtype.names
         return self.header[name]
@@ -124,6 +124,53 @@ class MrcFileStack(MrcFile):
             self._data = mrcfile.read(self.fname)
         return self._data
 
+    def get_block(self, indices: List[int], batch_size: int = 1024) -> np.ndarray:
+        """
+        Read multiple particle images
+
+        Args:
+            indices: List of particle indices to read
+            batch_size: Size of each read in bytes (default 1MB)
+
+        Returns:
+            np.ndarray: Array of particles
+        """
+        # Calculate spans of continuous indices
+        indices = np.array(indices)
+        image_size = self.image_nelem * self.elem_size
+
+        # Find continuous regions that can be read together
+        breaks = np.where(np.diff(indices) > 1)[0] + 1
+        spans = np.split(indices, breaks)
+
+        output = np.empty((len(indices), *self.shape), dtype=self.dtype)
+        output_map = {idx: i for i, idx in enumerate(indices)}
+
+        with self._lock:
+            for span in spans:
+                if len(span) == 0:
+                    continue
+
+                # Calculate how many particles we can read in one batch
+                particles_per_batch = max(1, batch_size // image_size)
+
+                # Process span in batches
+                for batch_start in range(0, len(span), particles_per_batch):
+                    batch_end = min(batch_start + particles_per_batch, len(span))
+                    batch_indices = span[batch_start:batch_end]
+
+                    # Read the batch as one block
+                    offset = self._get_offset(batch_indices[0])
+                    self.f.seek(offset)
+                    data = np.fromfile(self.f, dtype=self.dtype,
+                                       count=self.image_nelem * len(batch_indices))
+                    data = data.reshape((len(batch_indices), *self.shape))
+
+                    # Map data to correct output positions
+                    for i, idx in enumerate(batch_indices):
+                        output[output_map[idx]] = self.map_function(data[i])
+
+        return output
 
     @staticmethod
     def dump_npImages_from_iterator(stackFname, particlesIterator,
