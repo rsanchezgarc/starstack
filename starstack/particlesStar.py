@@ -305,10 +305,10 @@ class ParticlesStarSet():
 
         if confidence is not None:
             if RELION_PRED_POSE_CONFIDENCE_NAME not in self.particles_md.columns:
-                self.particles_md[RELION_PRED_POSE_CONFIDENCE_NAME] = confidence
-            else:
-                self.particles_md.iloc[idx,
-                                    self.particles_md.columns.get_loc(RELION_PRED_POSE_CONFIDENCE_NAME)] = confidence
+                self.particles_md[RELION_PRED_POSE_CONFIDENCE_NAME] = -1
+
+            self.particles_md.iloc[idx,
+                                self.particles_md.columns.get_loc(RELION_PRED_POSE_CONFIDENCE_NAME)] = confidence
 
 
     @classmethod
