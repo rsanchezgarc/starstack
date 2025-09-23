@@ -675,6 +675,6 @@ class ParticlesStarSet():
                 yield batch_images[i], batch_metadata.iloc[i]
 
 
-def split_particle_and_fname(fname, pattern=re.compile("(\d+@)?(.*/)*(.*)")):
+def split_particle_and_fname(fname, pattern=re.compile(r"(\d+@)?(.*/)*(.*)")):
     matchObj = re.match(pattern, fname)
     return dict(partNum=matchObj.group(1)[:-1], dirname=matchObj.group(2), basename=matchObj.group(3))
