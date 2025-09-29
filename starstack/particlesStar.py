@@ -1,4 +1,5 @@
 import re
+from os import PathLike
 
 import numpy as np
 import starfile
@@ -29,10 +30,11 @@ class ParticlesStarSet():
         partNum_fname (List[Tuple[int, str]]): List of tuples mapping particle numbers to filenames
         _imgStackFileHandlers (Dict[str, MrcFileStack]): Cache of MRC file handlers
     """
-    def __init__(self, starFname: str, particlesDir: Optional[str] = None, starts_at_1: bool = True):
+    def __init__(self, starFname: Union[PathLike, str, Dict[str, pd.DataFrame]], particlesDir: Optional[str] = None,
+                 starts_at_1: bool = True):
         """
 
-        :param starFname: The star filename with the metadata
+        :param starFname: The star filename with the metadata, or a dictionary like the one returned by starfile.read
         :param particlesDir: The directory of the particles .mrcs file(s). If None, it assumes that starFname
         imageName paths for .mrcs are referred from the current working directory
         :param starts_at_1: Whether the first particle at the starfile is named 0 or 1. In Relion it starts with 1
@@ -42,14 +44,23 @@ class ParticlesStarSet():
         self.starts_at_1 = starts_at_1
         self.read(starFname)
 
-    def read(self, starFname: str) -> None:
+    def read(self, starFname: Union[PathLike, str, Dict[str, pd.DataFrame]]) -> None:
         """
         Read particle metadata from a star file.
 
         :param starFname: The star filename with the metadata
         """
 
-        data = starfile.read(starFname)
+        if isinstance(starFname, dict):
+            data = starFname
+        elif isinstance(starFname, (str, PathLike)):
+            data = starfile.read(starFname)
+        else:
+            raise RuntimeError(f"Not valid input {starFname}")
+
+        self._init_md(data)
+
+    def _init_md(self, data: Dict[str, pd.DataFrame]):
         if "particles" in data:
             self.optics_md = data["optics"]
             self.particles_md = data["particles"]
@@ -70,7 +81,7 @@ class ParticlesStarSet():
 
         def get_fname(dirname, basename):
             fullFname = _get_fname(dirname, basename)
-            if not osp.isfile(fullFname):
+            if not osp.isfile(fullFname) and isinstance(self.starFname, (str, PathLike)):
                 # try to get it from the same directory as the starFname
                 fullFname = osp.join(osp.dirname(self.starFname), basename)
             return fullFname
