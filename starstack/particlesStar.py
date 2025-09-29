@@ -177,7 +177,7 @@ class ParticlesStarSet():
         return ParticlesStarSet(newStarFname)
 
     def createSubset(self, start: Optional[int] = None, end: Optional[int] = None,
-                     idxs: Optional[List[int]] = None) -> T:
+                     idxs: Optional[List[int]] = None) -> T: #TODO: Enable ids for subseters
         """
         Create a new ParticlesStarSet containing a subset of particles.
 
